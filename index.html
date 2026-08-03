@@ -956,13 +956,20 @@ function renderDashboard(){
 
 // ════════════ SEMAINE ════════════
 function renderSemaine(){
-  // Toujours afficher le bon état de connexion
   const cb = document.getElementById('connect-block');
   const av = document.getElementById('agenda-view');
+
+  // Afficher le bloc de connexion si pas connecté
   if (!S.gcalConnected || !gcalAccessToken) {
     if(cb) cb.style.display = 'block';
     if(av) av.style.display = 'none';
-    document.getElementById('s-wlbl').textContent = 'Connecte Google Calendar pour voir tes séances';
+    document.getElementById('s-wlbl').textContent = 'Connecte Google Calendar';
+    // Rendre quand même le résumé et les graphiques vides
+    document.getElementById('s-summary').innerHTML = '';
+    document.getElementById('s-wgrid').innerHTML = '';
+    document.getElementById('s-tbody').innerHTML = '<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--light);">Connecte Google Calendar ci-dessus pour voir tes séances</td></tr>';
+    document.getElementById('s-heures').innerHTML = '<div style="color:var(--light);font-size:13px;padding:8px 0;">—</div>';
+    document.getElementById('s-taux-chart').innerHTML = '<div style="color:var(--light);font-size:13px;padding:8px 0;">—</div>';
     return;
   }
   if(cb) cb.style.display = 'none';
