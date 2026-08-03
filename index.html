@@ -2,6 +2,8 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<meta name="description" content="Ari·Finance — Suivi logopédie indépendante Ariadna Balsells">
+<link rel="canonical" href="https://ariadnalogopede.github.io/ari-finance/">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ari·Finance v5</title>
 <style>
@@ -147,6 +149,7 @@ input:focus,select:focus{border-color:var(--sage);}
 @media(max-width:700px){.g2{grid-template-columns:1fr;}.wgrid{grid-template-columns:1fr 1fr;}}
 @media print{header,nav,.hbtns,.btn,.no-print{display:none!important;}.page{display:block!important;padding:10px;}}
 </style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
@@ -678,9 +681,123 @@ function syncGCal(){
   },1600);
 }
 
-function connectGCal(){
-  snack('🔐 Connexion Google OAuth... (démo activée)');
-  setTimeout(()=>{S.gcalConnected=true;S.lastSync=new Date().toISOString();injectDemo();persist();renderAll();snack('✅ Google Calendar connecté (démo)');},1000);
+// ── Google Calendar OAuth2 ──
+const GCAL_CLIENT_ID = '837055398312-6pa1a4krupdv15bsbml93vqcoe4dtpof.apps.googleusercontent.com';
+const GCAL_SCOPE = 'https://www.googleapis.com/auth/calendar.readonly';
+let gcalAccessToken = null;
+
+function connectGCal() {
+  if (!window.google || !google.accounts) {
+    snack('⚠️ Google Identity Services non chargé — réessaie dans 2 secondes');
+    return;
+  }
+  const client = google.accounts.oauth2.initTokenClient({
+    client_id: GCAL_CLIENT_ID,
+    scope: GCAL_SCOPE,
+    callback: (tokenResponse) => {
+      if (tokenResponse.error) {
+        snack('❌ Erreur Google : ' + tokenResponse.error);
+        return;
+      }
+      gcalAccessToken = tokenResponse.access_token;
+      S.gcalConnected = true;
+      S.lastSync = new Date().toISOString();
+      document.getElementById('connect-block').style.display = 'none';
+      document.getElementById('agenda-view').style.display = 'block';
+      persist();
+      fetchGCalEvents();
+      snack('✅ Google Calendar connecté !');
+    },
+  });
+  client.requestAccessToken();
+}
+
+async function fetchGCalEvents() {
+  if (!gcalAccessToken) { snack('⚠️ Non connecté à Google Calendar'); return; }
+  const btn = document.getElementById('syncBtn');
+  btn.disabled = true; btn.textContent = '⏳ Import...';
+
+  try {
+    // Récupérer les événements Q4 2026 (sept → déc)
+    const timeMin = '2026-09-01T00:00:00Z';
+    const timeMax = '2026-12-31T23:59:59Z';
+    const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${timeMin}&timeMax=${timeMax}&maxResults=2500&singleEvents=true&orderBy=startTime`;
+
+    const resp = await fetch(url, {
+      headers: { Authorization: 'Bearer ' + gcalAccessToken }
+    });
+
+    if (!resp.ok) {
+      if (resp.status === 401) {
+        gcalAccessToken = null;
+        snack('🔐 Session expirée — reconnecte Google Calendar');
+        btn.disabled = false; btn.textContent = '🔄 Sync GCal';
+        return;
+      }
+      throw new Error('HTTP ' + resp.status);
+    }
+
+    const data = await resp.json();
+    const events = data.items || [];
+
+    // Parser les événements
+    const codes = ['CONV','CAPS','BILAN','GROUPE'];
+    let imported = 0, skipped = 0;
+
+    // Garder les séances manuelles
+    const manuelSeances = S.seances.filter(s => s.source === 'manuel');
+    const gcalSeances = [];
+
+    events.forEach(ev => {
+      const title = (ev.summary || '').trim();
+      if (!title) { skipped++; return; }
+
+      // Détecter le code dans le titre (ex: "Lucas CONV", "Sofia CAPS")
+      const titleUp = title.toUpperCase();
+      const code = codes.find(c => titleUp.includes(c));
+      if (!code) { skipped++; return; } // Ignorer les événements sans code logopédie
+
+      // Extraire le prénom (tout ce qui n'est pas le code)
+      const prenom = title.replace(new RegExp(code, 'gi'), '').trim().split(/\s+/)[0];
+      if (!prenom) { skipped++; return; }
+
+      // Calculer la durée
+      let dur = 30;
+      if (ev.start && ev.end) {
+        const start = new Date(ev.start.dateTime || ev.start.date);
+        const end = new Date(ev.end.dateTime || ev.end.date);
+        const mins = (end - start) / 60000;
+        dur = mins <= 35 ? 30 : mins <= 50 ? 45 : 60;
+      }
+
+      const tarif = getTarif(code, dur);
+      const date = (ev.start.dateTime || ev.start.date || '').split('T')[0];
+      const heure = ev.start.dateTime
+        ? new Date(ev.start.dateTime).toLocaleTimeString('fr-BE', {hour:'2-digit',minute:'2-digit'})
+        : '';
+
+      gcalSeances.push({
+        id: 'gcal_' + ev.id,
+        date, prenom, code, dur, tarif,
+        source: 'gcal', absent: false, note: '',
+        heure, gcalId: ev.id
+      });
+      imported++;
+    });
+
+    S.seances = manuelSeances.concat(gcalSeances);
+    S.lastSync = new Date().toISOString();
+    persist();
+    renderAll();
+    document.getElementById('d-sync').textContent = 'Sync: ' + new Date().toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'});
+    btn.disabled = false; btn.textContent = '🔄 Sync GCal';
+    snack(`✅ ${imported} séances importées depuis Google Calendar (${skipped} événements ignorés sans code CONV/CAPS/BILAN/GROUPE)`);
+
+  } catch(err) {
+    console.error('GCal error:', err);
+    btn.disabled = false; btn.textContent = '🔄 Sync GCal';
+    snack('❌ Erreur import : ' + err.message);
+  }
 }
 
 function injectDemo(){
