@@ -609,6 +609,7 @@ async function fetchGCal(){
       const code = CODES.find(c=>titleUp.includes(c));
       if(!code){skipped++;return;} // Ignorer sans code logopédie
 
+
       // Extraire prénom
       const prenom = title.replace(new RegExp(code,'gi'),'').trim().split(/\s+/)[0];
       if(!prenom){skipped++;return;}
@@ -821,7 +822,7 @@ function renderSemaine(){
         <td>${s.absent?'—':fmtE(s.tarif)}</td>
         <td>${s.absent?'<span class="badge b-ko">Absent</span>':'—'}</td>
         <td><span class="badge ${s.source==='gcal'?'b-gcal':'b-manual'}">${s.source==='gcal'?'📅 GCal':'✏️ Manuel'}</span></td>
-        <td><button class="btn btn-g btn-sm" onclick="openEdit('${s.id}')">✏️</button> <button class="btn btn-d btn-sm" onclick="delSeance('${s.id}')">✕</button></td>
+        <td><button class="btn btn-g btn-sm" onclick="openEdit('${s.id}')">✏️</button> <button class="btn btn-d btn-sm" onclick="delSeanceCheck('${s.id}','${s.source}')" title="Séances GCal : supprime dans Google Calendar puis resync">✕</button></td>
       </tr>`;
     });
   }
@@ -885,7 +886,7 @@ function renderMois(){
     <td>${s.absent?'—':fmtE(s.tarif)}</td>
     <td>${s.absent?'<span class="badge b-ko">Absent</span>':'—'}</td>
     <td><span class="badge ${s.source==='gcal'?'b-gcal':'b-manual'}">${s.source==='gcal'?'📅':'✏️'}</span></td>
-    <td><button class="btn btn-g btn-sm" onclick="openEdit('${s.id}')">✏️</button> <button class="btn btn-d btn-sm" onclick="delSeance('${s.id}')">✕</button></td>
+    <td><button class="btn btn-g btn-sm" onclick="openEdit('${s.id}')">✏️</button> <button class="btn btn-d btn-sm" onclick="delSeanceCheck('${s.id}','${s.source}')" title="Séances GCal : supprime dans Google Calendar puis resync">✕</button></td>
   </tr>`).join('')||`<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--light);">Aucune séance ce mois</td></tr>`;
 }
 
@@ -921,7 +922,7 @@ function renderSeances(){
     <td>${s.absent?'<span class="badge b-ko">Absent</span>':'—'}</td>
     <td><span class="badge ${s.source==='gcal'?'b-gcal':'b-manual'}">${s.source==='gcal'?'📅 GCal':'✏️ Manuel'}</span></td>
     <td style="color:var(--mid);font-size:11px;">${s.note||'—'}</td>
-    <td><button class="btn btn-g btn-sm" onclick="openEdit('${s.id}')">✏️</button> <button class="btn btn-d btn-sm" onclick="delSeance('${s.id}')">✕</button></td>
+    <td><button class="btn btn-g btn-sm" onclick="openEdit('${s.id}')">✏️</button> <button class="btn btn-d btn-sm" onclick="delSeanceCheck('${s.id}','${s.source}')" title="Séances GCal : supprime dans Google Calendar puis resync">✕</button></td>
   </tr>`).join('')||`<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--light);">Aucune séance — synchronise GCal ou encode ci-dessus</td></tr>`;
 
   const ca=calcCA(sorted);
@@ -954,7 +955,14 @@ function addSeance(){
   snack(`✅ ${prenom} · ${tc.code} ${tc.dur}min · ${tarif.toFixed(2)}€`);
 }
 
-function delSeance(id){S.seances=S.seances.filter(s=>s.id!==id);persist();renderSeances();renderSemaine();}
+function delSeanceCheck(id, source){
+  if(source==='gcal'){
+    if(!confirm('Cette séance vient de Google Calendar.\n\nPour la supprimer définitivement, supprime-la dans Google Calendar puis resynchronise.\n\nVeux-tu quand même la retirer de l\'app temporairement ?')) return;
+  }
+  delSeance(id);
+}
+
+function delSeance(id){S.seances=S.seances.filter(s=>s.id!==id);persist();renderSeances();renderSemaine();snack('🗑 Supprimée');}
 
 function openEdit(id){
   const s=S.seances.find(x=>x.id===id);if(!s)return;
