@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ari·Finance</title>
+<script src="https://accounts.google.com/gsi/client" async></script>
+<style>
+:root{
+  --sage:#4A7A57;--sage-md:#6B9E78;--sage-lt:#B8D4BC;--sage-xl:#EAF3EB;
+  --terra:#B85C2C;--terra-lt:#EDB897;--terra-xl:#FBF0E8;
+  --cream:#F9F6F0;--warm:#FDFCFA;--dark:#1E2820;--mid:#5A6B5E;--light:#9AADA0;
+  --border:#D8E4DA;--blue:#2563EB;--blue-xl:#EFF6FF;--gold:#C9973A;--gold-xl:#FEF9EE;
+  --red:#B91C1C;--red-xl:#FEF2F2;--r:10px;--rlg:14px;
+  --sh:0 2px 10px rgba(74,122,87,.09);--shlg:0 4px 22px rgba(74,122,87,.13);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--cream);color:var(--dark);font-size:14px;}
+header{background:var(--sage);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(20,40,25,.2);}
+.logo{font-size:19px;font-weight:800;color:#fff;letter-spacing:-.5px;}
+.logo em{color:#EDB897;font-style:normal;}
+.logo-sub{font-size:11px;color:rgba(255,255,255,.6);margin-top:1px;}
+.hbtns{display:flex;gap:8px;align-items:center;}
+.hbtn{display:flex;align-items:center;gap:6px;padding:6px 13px;border-radius:var(--r);border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.13);color:#fff;font-size:12px;font-weight:600;cursor:pointer;transition:.2s;font-family:inherit;}
+.hbtn:hover{background:rgba(255,255,255,.22);}
+.hbtn:disabled{opacity:.4;pointer-events:none;}
+.gcal-status{font-size:11px;color:rgba(255,255,255,.7);display:flex;align-items:center;gap:5px;}
+.gcal-dot{width:7px;height:7px;border-radius:50%;background:#9AADA0;}
+.gcal-dot.connected{background:#4ADE80;}
+nav{background:var(--warm);border-bottom:1px solid var(--border);display:flex;padding:0 24px;gap:2px;overflow-x:auto;}
+.tab{padding:12px 16px;font-size:13px;font-weight:500;color:var(--mid);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:.15s;}
+.tab:hover{color:var(--sage);}
+.tab.on{color:var(--sage);border-bottom-color:var(--sage);font-weight:700;}
+.page{display:none;padding:22px;max-width:1280px;margin:0 auto;}
+.page.on{display:block;}
+.card{background:var(--warm);border:1px solid var(--border);border-radius:var(--rlg);padding:18px 20px;margin-bottom:16px;box-shadow:var(--sh);}
+.card-title{font-size:13px;font-weight:700;color:var(--dark);margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.kgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:11px;margin-bottom:18px;}
+.kpi{background:var(--warm);border:1px solid var(--border);border-radius:var(--rlg);padding:14px 16px;box-shadow:var(--sh);}
+.kpi.k-s{border-left:4px solid var(--sage);}
+.kpi.k-t{border-left:4px solid var(--terra);}
+.kpi.k-b{border-left:4px solid var(--blue);}
+.kpi.k-g{border-left:4px solid var(--gold);}
+.kpi.k-ok{border-left:4px solid #1E8449;}
+.kpi.k-r{border-left:4px solid var(--red);}
+.klbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--light);margin-bottom:6px;}
+.kval{font-size:24px;font-weight:800;line-height:1;color:var(--dark);}
+.ksub{font-size:11px;color:var(--mid);margin-top:3px;}
+.banner{background:linear-gradient(135deg,var(--sage) 0%,#3A6B47 100%);border-radius:var(--rlg);padding:18px 24px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;box-shadow:var(--shlg);}
+.b-left{color:#fff;}
+.b-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;opacity:.7;margin-bottom:3px;}
+.b-val{font-size:36px;font-weight:900;line-height:1;}
+.b-sub{font-size:12px;opacity:.75;margin-top:3px;}
+.b-right{flex:1;min-width:160px;max-width:280px;color:#fff;}
+.b-pct{font-size:18px;font-weight:800;text-align:right;margin-bottom:4px;}
+.b-bar-bg{height:10px;background:rgba(255,255,255,.25);border-radius:6px;overflow:hidden;}
+.b-bar-fill{height:10px;border-radius:6px;background:var(--terra-lt);transition:width .7s ease;}
+.b-hint{font-size:11px;opacity:.7;margin-top:4px;}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:var(--sage-xl);}
+th{padding:9px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--sage);border-bottom:2px solid var(--sage-lt);}
+td{padding:9px 12px;font-size:13px;border-bottom:1px solid var(--border);}
+tbody tr:hover{background:var(--sage-xl);}
+tbody tr:last-child td{border-bottom:none;}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;}
+.b-conv{background:var(--sage-xl);color:var(--sage);}
+.b-caps{background:var(--terra-xl);color:var(--terra);}
+.b-bilan{background:var(--blue-xl);color:var(--blue);}
+.b-groupe{background:var(--gold-xl);color:var(--gold);}
+.b-ok{background:#E8F8EF;color:#1A7A45;}
+.b-warn{background:#FFF8E1;color:#C47A00;}
+.b-ko{background:var(--red-xl);color:var(--red);}
+.b-gcal{background:var(--blue-xl);color:var(--blue);}
+.b-manual{background:#F5F5F5;color:#666;}
+.frow{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:10px;}
+.fg{display:flex;flex-direction:column;gap:4px;}
+.fg label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mid);}
+input,select{border:1.5px solid var(--border);border-radius:var(--r);padding:7px 11px;font-size:13px;background:var(--warm);color:var(--dark);outline:none;transition:.15s;font-family:inherit;}
+input:focus,select:focus{border-color:var(--sage);}
+.btn{padding:7px 15px;border-radius:var(--r);border:none;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;transition:.15s;}
+.btn-p{background:var(--sage);color:#fff;}
+.btn-p:hover{background:var(--sage-md);}
+.btn-s{background:var(--terra-xl);color:var(--terra);border:1px solid var(--terra-lt);}
+.btn-g{background:transparent;color:var(--mid);border:1px solid var(--border);}
+.btn-g:hover{background:var(--sage-xl);}
+.btn-d{background:var(--red-xl);color:var(--red);border:1px solid #FCA5A5;}
+.btn-sm{padding:4px 10px;font-size:11px;}
+.mnav{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.mnav button{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--warm);color:var(--sage);font-size:16px;cursor:pointer;transition:.15s;}
+.mnav button:hover{background:var(--sage-xl);}
+.mlbl{font-size:16px;font-weight:800;color:var(--dark);min-width:200px;text-align:center;}
+.wgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px;}
+.dcol{background:var(--warm);border:1px solid var(--border);border-radius:var(--r);padding:10px;min-height:100px;}
+.dcol.today{border-color:var(--sage);background:var(--sage-xl);}
+.dhead{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--light);margin-bottom:3px;}
+.ddate{font-size:18px;font-weight:800;color:var(--dark);margin-bottom:5px;}
+.dstats{font-size:10px;color:var(--mid);margin-bottom:5px;}
+.epill{display:flex;align-items:center;gap:4px;padding:3px 6px;border-radius:5px;font-size:11px;font-weight:600;margin-bottom:3px;}
+.epill.conv{background:var(--sage-xl);color:var(--sage);}
+.epill.caps{background:var(--terra-xl);color:var(--terra);}
+.epill.bilan{background:var(--blue-xl);color:var(--blue);}
+.epill.groupe{background:var(--gold-xl);color:var(--gold);}
+.epill.absent{background:var(--red-xl);color:var(--red);text-decoration:line-through;opacity:.7;}
+.edot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.alert{padding:10px 14px;border-radius:var(--r);margin-bottom:12px;font-size:13px;display:flex;align-items:flex-start;gap:9px;line-height:1.5;}
+.a-info{background:var(--sage-xl);color:var(--sage);border:1px solid var(--sage-lt);}
+.a-warn{background:var(--terra-xl);color:var(--terra);border:1px solid var(--terra-lt);}
+.a-tip{background:var(--blue-xl);color:var(--blue);border:1px solid #BFDBFE;}
+.a-red{background:var(--red-xl);color:var(--red);border:1px solid #FCA5A5;}
+.barchart{display:flex;flex-direction:column;gap:7px;}
+.brow{display:flex;align-items:center;gap:10px;}
+.blbl{min-width:80px;font-size:11px;color:var(--mid);text-align:right;}
+.btrack{flex:1;height:17px;background:var(--border);border-radius:4px;overflow:hidden;}
+.bfill{height:17px;border-radius:4px;display:flex;align-items:center;padding-left:6px;font-size:10px;font-weight:700;color:#fff;min-width:4px;transition:width .5s;}
+.bnum{min-width:70px;font-size:12px;font-weight:700;}
+.tarif-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;margin-bottom:12px;}
+.tc{border:1.5px solid var(--border);border-radius:var(--r);padding:11px 13px;cursor:pointer;transition:.15s;background:var(--warm);}
+.tc:hover,.tc.sel{border-color:var(--sage);background:var(--sage-xl);}
+.tc.sel{border-width:2px;}
+.tc-code{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--light);margin-bottom:2px;}
+.tc-label{font-size:12px;font-weight:700;color:var(--dark);margin-bottom:4px;}
+.tc-price{font-size:19px;font-weight:800;color:var(--sage);}
+.tc-dur{font-size:11px;color:var(--mid);}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.div{height:1px;background:var(--border);margin:14px 0;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:500;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--warm);border-radius:var(--rlg);padding:24px 26px;max-width:500px;width:90%;box-shadow:var(--shlg);}
+.modal-title{font-size:15px;font-weight:800;margin-bottom:14px;}
+.prov-card{border-radius:var(--r);padding:12px 14px;margin-bottom:8px;}
+.week-summary{background:var(--sage-xl);border-radius:var(--r);padding:12px 14px;margin-bottom:12px;display:flex;gap:20px;flex-wrap:wrap;}
+.ws-item{display:flex;flex-direction:column;gap:2px;}
+.ws-label{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--sage);letter-spacing:.05em;}
+.ws-val{font-size:18px;font-weight:800;color:var(--dark);}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:var(--sage-xl);color:var(--sage);margin:2px;}
+
+/* BOUTON GOOGLE */
+.gcal-connect-box{background:var(--warm);border:2px dashed var(--sage-lt);border-radius:var(--rlg);padding:28px;text-align:center;margin-bottom:16px;}
+.gcal-connect-box h3{font-size:16px;font-weight:800;margin-bottom:8px;color:var(--dark);}
+.gcal-connect-box p{font-size:13px;color:var(--mid);margin-bottom:18px;line-height:1.6;}
+.btn-google{display:inline-flex;align-items:center;gap:10px;background:#fff;color:#3c4043;border:1px solid #dadce0;border-radius:8px;padding:10px 24px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;box-shadow:0 1px 3px rgba(0,0,0,.12);transition:.2s;}
+.btn-google:hover{background:#f8f9fa;box-shadow:0 2px 6px rgba(0,0,0,.15);}
+.btn-google img{width:18px;height:18px;}
+
+#snack{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--dark);color:#fff;padding:10px 20px;border-radius:var(--r);font-size:13px;font-weight:500;box-shadow:var(--shlg);transition:transform .3s;z-index:999;white-space:nowrap;}
+#snack.show{transform:translateX(-50%) translateY(0);}
+@media(max-width:700px){.g2{grid-template-columns:1fr;}.wgrid{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">Ari<em>·</em>Finance</div>
+    <div class="logo-sub">Ariadna Balsells · Logopédie indépendante · Bruxelles</div>
+  </div>
+  <div class="hbtns">
+    <div class="gcal-status">
+      <div class="gcal-dot" id="gcal-dot"></div>
+      <span id="gcal-status-txt">Non connecté</span>
+    </div>
+    <button class="hbtn" id="sync-btn" onclick="doSync()" disabled>🔄 Sync</button>
+    <button class="hbtn" onclick="exportCSV()">📊 Excel</button>
+  </div>
+</header>
+
+<nav>
+  <div class="tab on"  onclick="go('dashboard',this)">📊 Tableau de bord</div>
+  <div class="tab" onclick="go('semaine',this)">📅 Semaine</div>
+  <div class="tab" onclick="go('mois',this)">📆 Mois</div>
+  <div class="tab" onclick="go('seances',this)">✏️ Séances</div>
+  <div class="tab" onclick="go('patients',this)">👥 Patients</div>
+  <div class="tab" onclick="go('frais',this)">💳 Frais</div>
+  <div class="tab" onclick="go('tresorerie',this)">🏦 Trésorerie</div>
+  <div class="tab" onclick="go('settings',this)">⚙️ Paramètres</div>
+</nav>
+
+<!-- DASHBOARD -->
+<div id="p-dashboard" class="page on">
+  <div class="mnav">
+    <button onclick="prevMonth()">‹</button>
+    <div class="mlbl" id="d-mlbl">—</div>
+    <button onclick="nextMonth()">›</button>
+    <span style="margin-left:auto;font-size:11px;color:var(--mid);" id="d-sync-time"></span>
+  </div>
+  <div class="banner">
+    <div class="b-left">
+      <div class="b-label">Net estimé ce mois</div>
+      <div class="b-val" id="b-net">0 €</div>
+      <div class="b-sub" id="b-sub">Objectif : 3 000 €/mois</div>
+    </div>
+    <div class="b-right">
+      <div class="b-pct" id="b-pct">0%</div>
+      <div class="b-bar-bg"><div class="b-bar-fill" id="b-bar" style="width:0%"></div></div>
+      <div class="b-hint" id="b-hint">Synchronise ton agenda pour commencer</div>
+    </div>
+  </div>
+  <div class="kgrid" id="d-kpis"></div>
+  <div class="g2">
+    <div class="card"><div class="card-title">📈 CA — 4 derniers mois</div><div class="barchart" id="d-chart-ca"></div></div>
+    <div class="card"><div class="card-title">🗂 Par type ce mois</div><div class="barchart" id="d-chart-types"></div></div>
+  </div>
+  <div class="card"><div class="card-title">🎯 Analyse</div><div id="d-reco"></div></div>
+</div>
+
+<!-- SEMAINE -->
+<div id="p-semaine" class="page">
+  <!-- Bouton connexion Google — TOUJOURS VISIBLE si non connecté -->
+  <div id="gcal-box" class="gcal-connect-box">
+    <h3>📅 Connecte ton Google Calendar</h3>
+    <p>L'app lit tes RDV et détecte automatiquement le code <strong>CONV / CAPS / BILAN / GROUPE</strong> dans le titre.<br>
+    Exemple : <strong>Youssef CONV</strong> (30 min) → tarif 38,37 € calculé automatiquement.</p>
+    <button class="btn-google" onclick="signInGoogle()">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0OCA0OCI+PHBhdGggZmlsbD0iI0ZGQzEwNyIgZD0iTTQzLjYxMSwyMC4wODNMNDMuNTk1LDIwSDI0djhIMzUuMzAzYy0xLjY0OSw0LjY1Ny02LjA4LDgtMTEuMzAzLDhjLTYuNjI3LDAtMTItNS4zNzMtMTItMTJzNS4zNzMtMTIsMTItMTJjMy4wNTksMCw1Ljg0MiwxLjE1NCw3Ljk2MSwzLjAzOWw1LjY1Ny01LjY1N0MzNC4wNDYsNi4wNTMsMjkuMjY4LDQsMjQsNEMxMi45NTUsNCw0LDEyLjk1NSw0LDI0czguOTU1LDIwLDIwLDIwczIwLTguOTU1LDIwLTIwQzQ0LDIyLjY1OSw0My44NjIsMjEuMzUsMjMuNjExLDIwLjA4M3oiLz48cGF0aCBmaWxsPSIjRkY0MzQyIiBkPSJNNi4zMDYsMTQuNjkxbDYuNTcxLDQuODE5QzE0LjY1NSwxNS4xMDgsMTguOTYxLDEyLDI0LDEyYzMuMDU5LDAsNS44NDIsMS4xNTQsNy45NjEsMy4wMzlsNS42NTctNS42NTdDMzQuMDQ2LDYuMDUzLDI5LjI2OCw0LDI0LDRDMTYuMzE4LDQsOS42NTYsOC4zMzcsNi4zMDYsMTQuNjkxeiIvPjxwYXRoIGZpbGw9IiM0Q0FGNTAiIGQ9Ik0yNCw0NGM1LjE2NiwwLDkuODYtMS45NzcsMTMuNDA5LTUuMTkybC02LjE5LTUuMjM4QzI5LjIxMSwzNS4wOTEsMjYuNzE1LDM2LDI0LDM2Yy01LjIwMiwwLTkuNjE5LTMuMzE3LTExLjI4My03Ljk0NmwtNi41MjIsNS4wMjVDOS41MDUsMzkuNTU2LDE2LjIyNyw0NCwyNCw0NHoiLz48cGF0aCBmaWxsPSIjMTU3NkYzIiBkPSJNNDMuNjExLDIwLjA4M0w0My41OTUsMjBIMjR2OGgxMS4zMDNjLTAuNzkyLDIuMjM3LTIuMjMxLDQuMTY2LTQuMDg3LDUuNTcxbDYuMTksNS4yMzhDNDIuMDIxLDM1LjE0Miw0NCwyOS44MjcsNDQsMjRDNDQsMjIuNjU5LDQzLjg2MiwyMS4zNSwyMy42MTEsMjAuMDgzeiIvPjwvc3ZnPg==" alt="Google">
+      Se connecter avec Google
+    </button>
+  </div>
+
+  <div class="mnav">
+    <button onclick="prevWeek()">‹</button>
+    <div class="mlbl" id="s-wlbl">Semaine courante</div>
+    <button onclick="nextWeek()">›</button>
+    <button class="btn btn-g btn-sm" onclick="goToday()" style="margin-left:8px;">Aujourd'hui</button>
+  </div>
+  <div class="week-summary" id="s-summary"></div>
+  <div class="wgrid" id="s-wgrid"></div>
+  <div class="card">
+    <div class="card-title">📋 Détail séances</div>
+    <table><thead><tr><th>Jour</th><th>Heure</th><th>Patient</th><th>Code</th><th>Durée</th><th>Tarif</th><th>Absent</th><th>Source</th><th></th></tr></thead>
+    <tbody id="s-tbody"></tbody></table>
+  </div>
+</div>
+
+<!-- MOIS -->
+<div id="p-mois" class="page">
+  <div class="mnav">
+    <button onclick="prevMonth()">‹</button>
+    <div class="mlbl" id="m-mlbl">—</div>
+    <button onclick="nextMonth()">›</button>
+  </div>
+  <div class="kgrid" id="m-kpis"></div>
+  <div class="g2">
+    <div class="card"><div class="card-title">💶 Compte de résultat</div><table><thead><tr><th>Élément</th><th>Montant</th></tr></thead><tbody id="m-cr"></tbody></table></div>
+    <div class="card"><div class="card-title">🔮 Projection fin de mois</div><div id="m-proj"></div></div>
+  </div>
+  <div class="card"><div class="card-title">📋 Séances du mois</div>
+    <table><thead><tr><th>Date</th><th>Patient</th><th>Code</th><th>Durée</th><th>Tarif</th><th>Absent</th><th>Source</th><th></th></tr></thead>
+    <tbody id="m-tbody"></tbody></table>
+  </div>
+</div>
+
+<!-- SÉANCES -->
+<div id="p-seances" class="page">
+  <div class="alert a-warn"><span>✏️</span><span>Encodage manuel — pour corriger ou compléter ce que Google Calendar ne capture pas (groupes, corrections).</span></div>
+  <div class="mnav">
+    <button onclick="prevMonth()">‹</button>
+    <div class="mlbl" id="enc-mlbl">—</div>
+    <button onclick="nextMonth()">›</button>
+  </div>
+  <div class="card">
+    <div class="card-title">⚡ Ajouter une séance</div>
+    <div class="tarif-grid" id="tarif-cards"></div>
+    <div class="frow">
+      <div class="fg"><label>Prénom</label><input id="enc-prenom" list="p-list" placeholder="Youssef" style="width:140px;"><datalist id="p-list"></datalist></div>
+      <div class="fg"><label>Date</label><input type="date" id="enc-date" style="width:155px;"></div>
+      <div class="fg"><label>Heure</label><input type="time" id="enc-heure" style="width:110px;"></div>
+      <div class="fg"><label>Absent ?</label><select id="enc-absent" style="width:100px;"><option value="0">Non</option><option value="1">Oui</option></select></div>
+      <div class="fg"><label>Tarif libre €</label><input type="number" id="enc-tarif-libre" placeholder="auto" step="0.01" style="width:90px;"></div>
+      <div class="fg"><label>Note</label><input id="enc-note" placeholder="optionnel" style="width:160px;"></div>
+      <div class="fg"><label>&nbsp;</label><button class="btn btn-p" onclick="addSeance()">+ Ajouter</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📋 Séances — <span id="enc-titre">—</span></div>
+    <table><thead><tr><th>Date</th><th>Heure</th><th>Patient</th><th>Code</th><th>Durée</th><th>Tarif</th><th>Absent</th><th>Source</th><th>Note</th><th></th></tr></thead>
+    <tbody id="enc-tbody"></tbody></table>
+    <div class="div"></div>
+    <div style="display:flex;justify-content:space-between;font-weight:700;font-size:13px;" id="enc-totaux"></div>
+  </div>
+</div>
+
+<!-- PATIENTS -->
+<div id="p-patients" class="page">
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">➕ Ajouter un patient</div>
+      <div class="frow">
+        <div class="fg"><label>Prénom</label><input id="p-nom" placeholder="Youssef" style="width:130px;"></div>
+        <div class="fg"><label>Code</label><select id="p-code"><option value="CONV">CONV</option><option value="CAPS">CAPS</option><option value="BILAN">BILAN</option><option value="GROUPE">GROUPE</option></select></div>
+        <div class="fg"><label>Durée</label><select id="p-dur"><option value="30">30 min</option><option value="45">45 min</option><option value="60">60 min</option></select></div>
+        <div class="fg"><label>Fréquence</label><select id="p-freq"><option value="1x">1x/sem</option><option value="2x">2x/sem</option><option value="bim">1x/2sem</option><option value="ponc">Ponctuel</option></select></div>
+        <div class="fg"><label>&nbsp;</label><button class="btn btn-p" onclick="addPatient()">Ajouter</button></div>
+      </div>
+    </div>
+    <div class="card"><div class="card-title">📊 Stats ce mois <span class="chip" id="nb-p">0</span></div><div id="p-stats"></div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">👥 Patients actifs</div>
+    <table><thead><tr><th>Prénom</th><th>Code</th><th>Durée</th><th>Tarif</th><th>Fréq.</th><th>Séances/mois</th><th>Absences</th><th>Taux absent.</th><th>CA/mois</th><th></th></tr></thead>
+    <tbody id="p-tbody"></tbody></table>
+  </div>
+</div>
+
+<!-- FRAIS -->
+<div id="p-frais" class="page">
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">➕ Ajouter une dépense</div>
+      <div class="frow">
+        <div class="fg"><label>Date</label><input type="date" id="dep-date" style="width:145px;"></div>
+        <div class="fg"><label>Catégorie</label><select id="dep-cat"><option value="loyer">🏢 Loyer</option><option value="comptable">📁 Comptable</option><option value="rc">🛡 RC Pro</option><option value="materiel">🖨 Matériel</option><option value="formation">🎓 Formation</option><option value="transport">🚌 Transport</option><option value="tel">📱 Téléphone</option><option value="inasti">💰 INASTI</option><option value="autre">📌 Autre</option></select></div>
+        <div class="fg"><label>Montant €</label><input type="number" id="dep-mnt" step="0.01" placeholder="0.00" style="width:95px;"></div>
+        <div class="fg"><label>Description</label><input id="dep-desc" placeholder="ex: Cabinet Centre A" style="width:200px;"></div>
+        <div class="fg"><label>&nbsp;</label><button class="btn btn-p" onclick="addDepense()">+ Enregistrer</button></div>
+      </div>
+      <div class="div"></div>
+      <div class="card-title" style="margin-bottom:8px;">📂 Import CSV CBC</div>
+      <p style="font-size:12px;color:var(--mid);margin-bottom:8px;">CBC Online → Comptes → Télécharger relevé → CSV</p>
+      <input type="file" id="csv-file" accept=".csv" onchange="importCSV(this)" style="font-size:12px;">
+    </div>
+    <div class="card"><div class="card-title">📊 Frais Q4 2026</div><div class="barchart" id="frais-chart"></div><div class="div"></div><div style="display:flex;justify-content:space-between;font-weight:700;" id="frais-total"></div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">💳 Journal des dépenses</div>
+    <table><thead><tr><th>Date</th><th>Catégorie</th><th>Description</th><th>Montant</th><th>Source</th><th></th></tr></thead>
+    <tbody id="dep-tbody"></tbody></table>
+  </div>
+</div>
+
+<!-- TRÉSORERIE -->
+<div id="p-tresorerie" class="page">
+  <div class="kgrid" id="treso-kpis"></div>
+  <div class="g2">
+    <div class="card"><div class="card-title">💰 Provisions mensuelles recommandées</div><div id="prov-cards"></div><div class="div"></div><div style="font-weight:700;font-size:14px;display:flex;justify-content:space-between;" id="prov-total"></div></div>
+    <div class="card"><div class="card-title">📊 Répartition du CA</div><div class="barchart" id="treso-chart"></div></div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div id="p-settings" class="page">
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">🎯 Objectifs</div>
+      <div class="fg" style="margin-bottom:11px;"><label>Objectif net mensuel (€)</label><input type="number" id="s-obj" value="3000"></div>
+      <div class="fg" style="margin-bottom:11px;"><label>Semaines de vacances FWB / an</label><input type="number" id="s-vac" value="16"></div>
+      <div class="fg" style="margin-bottom:11px;"><label>Taux d'absentéisme estimé (%)</label><input type="number" id="s-abs" value="10"></div>
+      <div class="fg" style="margin-bottom:11px;"><label>Tarif groupe (€ / séance)</label><input type="number" id="s-tarif-groupe" value="60" step="0.01"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">💶 Grille tarifaire</div>
+      <table><thead><tr><th>Code</th><th>30 min</th><th>45 min</th><th>60 min</th></tr></thead><tbody>
+        <tr><td><span class="badge b-conv">CONV</span></td><td><input type="number" id="t-conv-30" value="38.37" step="0.01" style="width:78px;"></td><td><input type="number" id="t-conv-45" value="57.55" step="0.01" style="width:78px;"></td><td><input type="number" id="t-conv-60" value="77.05" step="0.01" style="width:78px;"></td></tr>
+        <tr><td><span class="badge b-caps">CAPS</span></td><td><input type="number" id="t-caps-30" value="40.00" step="0.01" style="width:78px;"></td><td><input type="number" id="t-caps-45" value="60.00" step="0.01" style="width:78px;"></td><td><input type="number" id="t-caps-60" value="0" step="0.01" style="width:78px;"></td></tr>
+        <tr><td><span class="badge b-bilan">BILAN</span></td><td><input type="number" id="t-bilan-30" value="45.38" step="0.01" style="width:78px;"></td><td><input type="number" id="t-bilan-45" value="68.07" step="0.01" style="width:78px;"></td><td><input type="number" id="t-bilan-60" value="76.73" step="0.01" style="width:78px;"></td></tr>
+      </tbody></table>
+    </div>
+    <div class="card">
+      <div class="card-title">🏢 Frais fixes mensuels</div>
+      <div class="fg" style="margin-bottom:11px;"><label>Loyer cabinet (€/mois)</label><input type="number" id="s-loyer" value="420"></div>
+      <div class="fg" style="margin-bottom:11px;"><label>Comptable + RC + téléphone (€/mois)</label><input type="number" id="s-fixes" value="250"></div>
+      <div class="fg" style="margin-bottom:11px;"><label>Matériel (€/mois)</label><input type="number" id="s-mat" value="50"></div>
+      <div class="fg" style="margin-bottom:11px;"><label>Formations / an (€)</label><input type="number" id="s-form" value="750"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📅 Agenda clinique</div>
+      <div class="fg" style="margin-bottom:11px;"><label>Séances planifiées / jour plein</label><input type="number" id="s-spj" value="15"></div>
+      <div class="fg" style="margin-bottom:11px;"><label>Jours pleins / semaine</label><input type="number" id="s-jours" value="3"></div>
+      <div class="fg" style="margin-bottom:11px;"><label>Demi-journées / semaine</label><input type="number" id="s-demij" value="1"></div>
+    </div>
+  </div>
+  <div style="display:flex;gap:10px;">
+    <button class="btn btn-p" onclick="saveSettings()">💾 Sauvegarder</button>
+    <button class="btn btn-g" onclick="exportJSON()">📤 Backup JSON</button>
+    <button class="btn btn-d" onclick="resetAll()">🗑 Réinitialiser</button>
+  </div>
+</div>
+
+<!-- Modal édition -->
+<div class="modal-overlay" id="modal-edit">
+  <div class="modal">
+    <div class="modal-title">✏️ Modifier la séance</div>
+    <div class="frow">
+      <div class="fg"><label>Prénom</label><input id="e-prenom" style="width:130px;"></div>
+      <div class="fg"><label>Code</label><select id="e-code"><option>CONV</option><option>CAPS</option><option>BILAN</option><option>GROUPE</option></select></div>
+      <div class="fg"><label>Durée</label><select id="e-dur"><option value="30">30</option><option value="45">45</option><option value="60">60</option></select></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Date</label><input type="date" id="e-date" style="width:150px;"></div>
+      <div class="fg"><label>Heure</label><input type="time" id="e-heure" style="width:110px;"></div>
+      <div class="fg"><label>Absent</label><select id="e-absent"><option value="0">Non</option><option value="1">Oui</option></select></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Tarif manuel € (vide = auto)</label><input type="number" id="e-tarif" step="0.01" placeholder="auto" style="width:100px;"></div>
+      <div class="fg"><label>Note</label><input id="e-note" style="width:200px;"></div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px;">
+      <button class="btn btn-g" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-p" onclick="saveEdit()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div id="snack"></div>
+
+<script>
+// ══════════════════════════════════════════════
+// CONSTANTES
+// ══════════════════════════════════════════════
+const CLIENT_ID = '837055398312-6pa1a4krupdv15bsbml93vqcoe4dtpof.apps.googleusercontent.com';
+const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
+const MOIS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const JOURS = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi'];
+const CODES = ['CONV','CAPS','BILAN','GROUPE'];
+const CODE_COLORS = {CONV:'var(--sage)',CAPS:'var(--terra)',BILAN:'var(--blue)',GROUPE:'var(--gold)'};
+const CAT_LABELS = {loyer:'🏢 Loyer',comptable:'📁 Comptable',rc:'🛡 RC Pro',materiel:'🖨 Matériel',formation:'🎓 Formation',transport:'🚌 Transport',tel:'📱 Téléphone',inasti:'💰 INASTI',autre:'📌 Autre'};
+const CAT_COLORS = {loyer:'var(--terra)',comptable:'var(--sage)',rc:'var(--sage-md)',materiel:'var(--purp,#6B3FA0)',formation:'var(--blue)',transport:'#8B8000',tel:'var(--sage-lt)',inasti:'var(--gold)',autre:'var(--light)'};
+const SEM_FWB = [4,4,4,4,3,4,0,2,4,3,4,4];
+
+const TARIF_DEFS = [
+  {code:'CONV',dur:30,label:'Convention 30 min'},
+  {code:'CONV',dur:45,label:'Convention 45 min'},
+  {code:'CONV',dur:60,label:'Convention 60 min'},
+  {code:'CAPS',dur:30,label:"CAP'S 30 min"},
+  {code:'CAPS',dur:45,label:"CAP'S 45 min"},
+  {code:'BILAN',dur:30,label:'Bilan 30 min'},
+  {code:'BILAN',dur:45,label:'Bilan 45 min'},
+  {code:'BILAN',dur:60,label:'Bilan 60 min'},
+  {code:'GROUPE',dur:30,label:'Groupe'},
+];
+
+// ══════════════════════════════════════════════
+// ÉTAT
+// ══════════════════════════════════════════════
+let S = {
+  curMonth: new Date().getMonth(),
+  curYear: new Date().getFullYear(),
+  weekOffset: 0,
+  editId: null,
+  selTarif: null,
+  lastSync: null,
+  settings: {
+    objectif:3000, vacances:16, absent:10, tarifGroupe:60,
+    loyer:420, fixes:250, mat:50, form:750, spj:15, jours:3, demij:1,
+    tarifs:{
+      CONV:{30:38.37,45:57.55,60:77.05},
+      CAPS:{30:40.00,45:60.00,60:0},
+      BILAN:{30:45.38,45:68.07,60:76.73},
+      GROUPE:{30:60,45:60,60:60}
+    }
+  },
+  patients:[], seances:[], depenses:[]
+};
+
+let tokenClient = null;
+let accessToken = null;
+
+function persist(){try{localStorage.setItem('ari_final',JSON.stringify({...S,accessToken:null}));}catch(e){}}
+function hydrate(){
+  try{
+    const d = JSON.parse(localStorage.getItem('ari_final')||'{}');
+    if(d.settings) S.settings = {...S.settings,...d.settings};
+    if(d.settings?.tarifs) S.settings.tarifs = {...S.settings.tarifs,...d.settings.tarifs};
+    ['patients','seances','depenses'].forEach(k=>{if(d[k]) S[k]=d[k];});
+    if(d.lastSync) S.lastSync = d.lastSync;
+    if(d.curMonth !== undefined) S.curMonth = d.curMonth;
+    if(d.curYear !== undefined) S.curYear = d.curYear;
+  }catch(e){}
+}
+
+// ══════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════
+function r(n){return Math.round(n);}
+function fmt(n){return r(Math.abs(n)).toLocaleString('fr-BE');}
+function fmtE(n){return fmt(n)+' €';}
+function fmtH(n){return Math.floor(n)+'h'+(n%1?'30':'');}
+function uid(){return 'id_'+Date.now()+'_'+Math.random().toString(36).slice(2);}
+function snack(m,d=3000){const e=document.getElementById('snack');e.textContent=m;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),d);}
+function closeModal(){document.getElementById('modal-edit').classList.remove('open');S.editId=null;}
+
+function getTarif(code,dur){
+  if(code==='GROUPE') return S.settings.tarifGroupe||60;
+  return (S.settings.tarifs[code]||{})[dur]||0;
+}
+
+function seancesOfMonth(y,m){
+  return S.seances.filter(s=>{const d=new Date(s.date);return d.getFullYear()===y&&d.getMonth()===m;});
+}
+
+function calcCA(seances){
+  return seances.filter(s=>!s.absent).reduce((a,s)=>a+(s.tarif||0),0);
+}
+
+function fraisMois(){
+  const s=S.settings;
+  return s.loyer+s.fixes+s.mat+s.form/12;
+}
+
+function calcNet(ca){
+  const f=fraisMois();
+  const rb=Math.max(0,ca-f);
+  const cot=r(rb*0.205);
+  const rni=Math.max(0,rb-cot);
+  const ipp=rni>0?r(Math.max(0,(rni*0.40-2728)*1.085)):0;
+  return{rb,cot,rni,ipp,net:Math.max(0,r(rni-ipp)),frais:f};
+}
+
+function semsTrav(m){return SEM_FWB[m];}
+function planMois(m){const s=S.settings;return(s.spj*s.jours+12*s.demij)*semsTrav(m);}
+
+// ══════════════════════════════════════════════
+// GOOGLE CALENDAR AUTH
+// ══════════════════════════════════════════════
+function initGoogle(){
+  if(!window.google||!google.accounts||!google.accounts.oauth2) {
+    setTimeout(initGoogle, 500);
+    return;
+  }
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: onTokenReceived,
+  });
+}
+
+function signInGoogle(){
+  if(!tokenClient){snack('⏳ Google en cours de chargement, réessaie dans 2 secondes...');return;}
+  tokenClient.requestAccessToken({prompt:'consent'});
+}
+
+function onTokenReceived(resp){
+  if(resp.error){
+    snack('❌ Erreur Google : '+resp.error);
+    console.error('Google OAuth error:', resp);
+    return;
+  }
+  accessToken = resp.access_token;
+  updateGCalStatus(true);
+  snack('✅ Connecté à Google Calendar !');
+  fetchGCal();
+}
+
+function updateGCalStatus(connected){
+  const dot = document.getElementById('gcal-dot');
+  const txt = document.getElementById('gcal-status-txt');
+  const btn = document.getElementById('sync-btn');
+  const box = document.getElementById('gcal-box');
+
+  if(connected){
+    dot.classList.add('connected');
+    txt.textContent = 'Google Calendar connecté';
+    btn.disabled = false;
+    if(box) box.style.display = 'none';
+  } else {
+    dot.classList.remove('connected');
+    txt.textContent = 'Non connecté';
+    btn.disabled = true;
+    if(box) box.style.display = 'block';
+  }
+}
+
+function doSync(){
+  if(!accessToken){
+    snack('📅 Connecte Google Calendar d\'abord');
+    updateGCalStatus(false);
+    return;
+  }
+  fetchGCal();
+}
+
+async function fetchGCal(){
+  const btn = document.getElementById('sync-btn');
+  btn.disabled = true; btn.textContent = '⏳ Import...';
+  snack('🔄 Import en cours...', 10000);
+
+  try{
+    const timeMin = '2026-01-01T00:00:00Z';
+    const timeMax = '2027-12-31T23:59:59Z';
+    const CAL_ID = 'eca0ae8109d657fa107dba99a5c85708999ada379258e8b65a17df4da487c076@group.calendar.google.com';
+    const url = 'https://www.googleapis.com/calendar/v3/calendars/'
+      + encodeURIComponent(CAL_ID)
+      + '/events?timeMin=' + timeMin
+      + '&timeMax=' + timeMax
+      + '&maxResults=2500&singleEvents=true&orderBy=startTime';
+
+    const resp = await fetch(url, {
+      headers:{Authorization:'Bearer '+accessToken}
+    });
+
+    if(resp.status === 401){
+      accessToken = null;
+      updateGCalStatus(false);
+      snack('🔐 Session expirée — reconnecte-toi');
+      btn.disabled = false; btn.textContent = '🔄 Sync';
+      return;
+    }
+
+    if(!resp.ok) throw new Error('HTTP '+resp.status);
+
+    const data = await resp.json();
+    const events = data.items || [];
+
+    // Parser les événements — UNIQUEMENT ceux avec code logopédie
+    const manuelSeances = S.seances.filter(s=>s.source==='manuel');
+    const gcalSeances = [];
+    let imported = 0, skipped = 0;
+
+    events.forEach(ev=>{
+      const title = (ev.summary||'').trim();
+      if(!title){skipped++;return;}
+
+      const titleUp = title.toUpperCase();
+      const code = CODES.find(c=>titleUp.includes(c));
+      if(!code){skipped++;return;} // Ignorer sans code logopédie
+
+
+      // Extraire prénom
+      const prenom = title.replace(new RegExp(code,'gi'),'').trim().split(/\s+/)[0];
+      if(!prenom){skipped++;return;}
+
+      // Durée
+      let dur = 30;
+      if(ev.start?.dateTime && ev.end?.dateTime){
+        const mins = (new Date(ev.end.dateTime)-new Date(ev.start.dateTime))/60000;
+        dur = mins<=35?30:mins<=50?45:60;
+      }
+
+      const tarif = getTarif(code, dur);
+      const date = (ev.start.dateTime||ev.start.date||'').split('T')[0];
+      let heure = '';
+      if(ev.start.dateTime){
+        heure = new Date(ev.start.dateTime).toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'});
+      }
+
+      gcalSeances.push({
+        id:'gcal_'+ev.id,
+        date, prenom, code, dur, tarif,
+        source:'gcal', absent:false, note:'', heure
+      });
+      imported++;
+    });
+
+    S.seances = manuelSeances.concat(gcalSeances);
+    S.lastSync = new Date().toISOString();
+    persist();
+
+    btn.disabled = false; btn.textContent = '🔄 Sync';
+    document.getElementById('d-sync-time').textContent =
+      'Sync: '+new Date().toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'});
+
+    const currentPage = document.querySelector('.tab.on')?.textContent?.trim();
+    renderDashboard();
+    if(currentPage?.includes('Semaine')) renderSemaine();
+    if(currentPage?.includes('Mois')) renderMois();
+    if(currentPage?.includes('Séances')) renderSeances();
+
+    snack(`✅ ${imported} séances importées (${skipped} événements sans code ignorés)`);
+
+  }catch(err){
+    console.error('GCal fetch error:', err);
+    btn.disabled = false; btn.textContent = '🔄 Sync';
+    snack('❌ Erreur : '+err.message);
+  }
+}
+
+// ══════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════
+const RENDERS = {
+  dashboard:renderDashboard, semaine:renderSemaine,
+  mois:renderMois, seances:renderSeances,
+  patients:renderPatients, frais:renderFrais,
+  tresorerie:renderTresorerie, settings:loadSettings
+};
+
+function go(name,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.getElementById('p-'+name).classList.add('on');
+  el.classList.add('on');
+  if(RENDERS[name]) RENDERS[name]();
+}
+
+function prevMonth(){
+  S.curMonth--;
+  if(S.curMonth<0){S.curMonth=11;S.curYear--;}
+  persist();
+  const on = document.querySelector('.page.on');
+  if(on?.id==='p-dashboard') renderDashboard();
+  if(on?.id==='p-mois') renderMois();
+  if(on?.id==='p-seances') renderSeances();
+}
+
+function nextMonth(){
+  S.curMonth++;
+  if(S.curMonth>11){S.curMonth=0;S.curYear++;}
+  persist();
+  const on = document.querySelector('.page.on');
+  if(on?.id==='p-dashboard') renderDashboard();
+  if(on?.id==='p-mois') renderMois();
+  if(on?.id==='p-seances') renderSeances();
+}
+
+function prevWeek(){S.weekOffset--;renderSemaine();}
+function nextWeek(){S.weekOffset++;renderSemaine();}
+function goToday(){S.weekOffset=0;renderSemaine();}
+
+// ══════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════
+function renderDashboard(){
+  const y=S.curYear,m=S.curMonth;
+  document.getElementById('d-mlbl').textContent=MOIS[m]+' '+y;
+  if(S.lastSync) document.getElementById('d-sync-time').textContent=
+    'Sync: '+new Date(S.lastSync).toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'});
+
+  const allS=seancesOfMonth(y,m);
+  const actives=allS.filter(s=>!s.absent);
+  const absentes=allS.filter(s=>s.absent);
+  const ca=calcCA(allS);
+  const fin=calcNet(ca);
+  const plan=planMois(m);
+  const taux=plan>0?actives.length/plan:0;
+  const pct=S.settings.objectif>0?Math.min(fin.net/S.settings.objectif,1.2):0;
+
+  // Banner
+  document.getElementById('b-net').textContent=fmtE(fin.net);
+  document.getElementById('b-sub').textContent='Objectif : '+fmtE(S.settings.objectif)+'/mois';
+  document.getElementById('b-pct').textContent=r(pct*100)+'%';
+  document.getElementById('b-bar').style.width=(Math.min(pct,1)*100)+'%';
+  document.getElementById('b-hint').textContent=fin.net>=S.settings.objectif
+    ?'✅ Objectif atteint ! (+'+fmtE(fin.net-S.settings.objectif)+')'
+    :'Il manque '+fmtE(S.settings.objectif-fin.net)+' pour l\'objectif';
+
+  // KPIs
+  document.getElementById('d-kpis').innerHTML=`
+    <div class="kpi k-s"><div class="klbl">Séances prestées</div><div class="kval">${actives.length}</div><div class="ksub">sur ~${plan} planifiées</div></div>
+    <div class="kpi k-t"><div class="klbl">Absences</div><div class="kval">${absentes.length}</div><div class="ksub">Impact : −${fmtE(absentes.reduce((a,s)=>a+(s.tarif||0),0))}</div></div>
+    <div class="kpi k-b"><div class="klbl">CA brut</div><div class="kval">${fmtE(ca)}</div><div class="ksub">Frais : −${fmtE(fin.frais)}</div></div>
+    <div class="kpi k-ok"><div class="klbl">Net estimé</div><div class="kval">${fmtE(fin.net)}</div><div class="ksub">INASTI: −${fmtE(fin.cot)}</div></div>
+    <div class="kpi k-g"><div class="klbl">Heures prestées</div><div class="kval">${fmtH(actives.length*0.5)}</div><div class="ksub">Planifiées: ${fmtH(plan*0.5)}</div></div>
+    <div class="kpi k-r"><div class="klbl">Taux remplissage</div><div class="kval">${r(taux*100)}%</div><div class="ksub">Objectif: 90%</div></div>
+  `;
+
+  // Chart CA 4 mois
+  const months4=[...Array(4)].map((_,i)=>{let mm=m-3+i,yy=y;if(mm<0){mm+=12;yy--;}return{m:mm,y:yy};});
+  const maxCA=Math.max(...months4.map(({m:mm,y:yy})=>calcCA(seancesOfMonth(yy,mm))),1);
+  document.getElementById('d-chart-ca').innerHTML=months4.map(({m:mm,y:yy})=>{
+    const c=calcCA(seancesOfMonth(yy,mm));
+    return`<div class="brow"><div class="blbl">${MOIS[mm].substring(0,4)}</div><div class="btrack"><div class="bfill" style="width:${c/maxCA*100}%;background:${mm===m?'var(--terra)':'var(--sage-lt)'}">${c>maxCA*.2?fmtE(c):''}</div></div><div class="bnum">${c>0?fmtE(c):'—'}</div></div>`;
+  }).join('');
+
+  // Chart types
+  const byCode=CODES.map(c=>({c,n:actives.filter(s=>s.code===c).length,ca:actives.filter(s=>s.code===c).reduce((a,s)=>a+(s.tarif||0),0)}));
+  const maxT=Math.max(...byCode.map(b=>b.n),1);
+  document.getElementById('d-chart-types').innerHTML=byCode.map(b=>`
+    <div class="brow"><div class="blbl"><span class="badge b-${b.c.toLowerCase()}">${b.c}</span></div><div class="btrack"><div class="bfill" style="width:${b.n/maxT*100}%;background:${CODE_COLORS[b.c]}">${b.n>0?b.n:''}</div></div><div class="bnum">${b.ca>0?fmtE(b.ca):'—'}</div></div>`).join('');
+
+  // Reco
+  const manque=Math.max(0,S.settings.objectif-fin.net);
+  const suppNeeded=manque>0?Math.ceil(manque/(S.settings.tarifs.CONV[30]*0.68*0.795)):0;
+  document.getElementById('d-reco').innerHTML=fin.net>=S.settings.objectif
+    ?`<div class="alert a-info">✅ <strong>Objectif ${MOIS[m]} atteint !</strong> Pense à provisionner ton INASTI (${fmtE(fin.cot)}).</div>`
+    :allS.length===0
+    ?`<div class="alert a-tip">📅 Aucune séance ce mois — connecte Google Calendar ou encode manuellement dans l'onglet Séances.</div>`
+    :`<div style="font-size:13px;line-height:1.9;color:var(--mid);">Il manque <strong style="color:var(--terra)">${fmtE(manque)}</strong> net.<br>→ Ajouter <strong>${suppNeeded} séances CONV 30min</strong> compenserait.<br>→ Taux remplissage : <strong>${r(taux*100)}%</strong> ${taux<.85?'— il reste de la place.':'— agenda bien rempli.'}</div>`;
+}
+
+// ══════════════════════════════════════════════
+// SEMAINE
+// ══════════════════════════════════════════════
+function renderSemaine(){
+  // Gérer l'affichage du bloc connexion
+  const box = document.getElementById('gcal-box');
+  if(box) box.style.display = accessToken ? 'none' : 'block';
+
+  const today=new Date();
+  const base=new Date(today);
+  base.setDate(base.getDate()-(base.getDay()===0?6:base.getDay()-1)+S.weekOffset*7);
+  const ws=new Date(base);
+  const we=new Date(base);we.setDate(we.getDate()+4);
+
+  document.getElementById('s-wlbl').textContent=
+    'Semaine du '+ws.getDate()+' '+MOIS[ws.getMonth()].substring(0,3)+' '+ws.getFullYear();
+
+  const wSeances=S.seances.filter(s=>{const d=new Date(s.date);return d>=ws&&d<=we;});
+  const actives=wSeances.filter(s=>!s.absent);
+  const ca=calcCA(wSeances);
+  const plan=S.settings.spj*S.settings.jours+12*S.settings.demij;
+  const taux=plan>0?actives.length/plan:0;
+
+  document.getElementById('s-summary').innerHTML=`
+    <div class="ws-item"><div class="ws-label">Séances</div><div class="ws-val">${actives.length} / ${plan}</div></div>
+    <div class="ws-item"><div class="ws-label">Absences</div><div class="ws-val" style="color:var(--terra)">${wSeances.filter(s=>s.absent).length}</div></div>
+    <div class="ws-item"><div class="ws-label">Remplissage</div><div class="ws-val">${r(taux*100)}%</div></div>
+    <div class="ws-item"><div class="ws-label">CA brut</div><div class="ws-val">${fmtE(ca)}</div></div>
+    <div class="ws-item"><div class="ws-label">Heures</div><div class="ws-val">${fmtH(actives.length*0.5)}</div></div>
+    <div class="ws-item"><div class="ws-label">Net estimé</div><div class="ws-val" style="color:var(--sage)">${fmtE(r(ca*0.795*0.68))}</div></div>
+  `;
+
+  const grid=document.getElementById('s-wgrid');
+  let tableRows='';
+  grid.innerHTML='';
+
+  for(let i=0;i<5;i++){
+    const day=new Date(ws);day.setDate(ws.getDate()+i);
+    const dayStr=day.toISOString().split('T')[0];
+    const isToday=day.toDateString()===today.toDateString();
+    const dayS=S.seances.filter(s=>s.date===dayStr).sort((a,b)=>(a.heure||'').localeCompare(b.heure||''));
+    const dayAct=dayS.filter(s=>!s.absent);
+    const dayAbs=dayS.filter(s=>s.absent);
+
+    const pills=dayS.map(s=>`<div class="epill ${s.absent?'absent':s.code.toLowerCase()}"><div class="edot" style="background:${s.absent?'var(--red)':CODE_COLORS[s.code]}"></div>${s.heure?s.heure+' ':''} ${s.prenom}</div>`).join('');
+    grid.innerHTML+=`<div class="dcol ${isToday?'today':''}">
+      <div class="dhead">${JOURS[i]}</div><div class="ddate">${day.getDate()}</div>
+      <div class="dstats">${dayAct.length} séances${dayAbs.length>0?' · '+dayAbs.length+' abs.':''}</div>
+      ${pills||'<div style="font-size:10px;color:var(--light);">—</div>'}
+    </div>`;
+
+    dayS.forEach(s=>{
+      tableRows+=`<tr style="${s.absent?'opacity:.6;':''}">
+        <td>${JOURS[i]} ${day.getDate()}</td><td>${s.heure||'—'}</td>
+        <td><strong>${s.prenom}</strong></td>
+        <td><span class="badge b-${s.code.toLowerCase()}">${s.code}</span></td>
+        <td>${s.dur} min</td>
+        <td>${s.absent?'—':fmtE(s.tarif)}</td>
+        <td>${s.absent?'<span class="badge b-ko">Absent</span>':'—'}</td>
+        <td><span class="badge ${s.source==='gcal'?'b-gcal':'b-manual'}">${s.source==='gcal'?'📅 GCal':'✏️ Manuel'}</span></td>
+        <td><button class="btn btn-g btn-sm" onclick="openEdit('${s.id}')">✏️</button> <button class="btn btn-d btn-sm" onclick="delSeanceCheck('${s.id}','${s.source}')" title="Séances GCal : supprime dans Google Calendar puis resync">✕</button></td>
+      </tr>`;
+    });
+  }
+
+  document.getElementById('s-tbody').innerHTML=tableRows||
+    `<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--light);">${accessToken?'Aucune séance cette semaine':'Connecte Google Calendar pour voir tes séances'}</td></tr>`;
+}
+
+// ══════════════════════════════════════════════
+// MOIS
+// ══════════════════════════════════════════════
+function renderMois(){
+  const y=S.curYear,m=S.curMonth;
+  document.getElementById('m-mlbl').textContent=MOIS[m]+' '+y;
+
+  const allS=seancesOfMonth(y,m);
+  const actives=allS.filter(s=>!s.absent);
+  const absentes=allS.filter(s=>s.absent);
+  const ca=calcCA(allS);
+  const fin=calcNet(ca);
+  const plan=planMois(m);
+  const taux=plan>0?actives.length/plan:0;
+
+  document.getElementById('m-kpis').innerHTML=`
+    <div class="kpi k-s"><div class="klbl">Séances</div><div class="kval">${actives.length}</div><div class="ksub">sur ${plan} planifiées · ${semsTrav(m)} sem.</div></div>
+    <div class="kpi k-t"><div class="klbl">Absences</div><div class="kval">${absentes.length}</div><div class="ksub">Taux : ${allS.length>0?r(absentes.length/allS.length*100):0}%</div></div>
+    <div class="kpi k-b"><div class="klbl">Remplissage</div><div class="kval">${r(taux*100)}%</div><div class="ksub">Objectif : 90%</div></div>
+    <div class="kpi k-ok"><div class="klbl">Net estimé</div><div class="kval">${fmtE(fin.net)}</div><div class="ksub">CA: ${fmtE(ca)} · Frais: ${fmtE(fin.frais)}</div></div>
+  `;
+
+  const caTheo=plan*S.settings.tarifs.CONV[30];
+  document.getElementById('m-cr').innerHTML=[
+    ['CA théorique (0 absence)',fmtE(caTheo),''],
+    ['Manque dû aux absences','−'+fmtE(absentes.reduce((a,s)=>a+(s.tarif||0),0)),'color:var(--red)'],
+    ['CA brut réel',fmtE(ca),'font-weight:700'],
+    ['Frais professionnels','−'+fmtE(fin.frais),'color:var(--terra)'],
+    ['Cotisations INASTI','−'+fmtE(fin.cot),'color:var(--terra)'],
+    ['IPP estimé','−'+fmtE(fin.ipp),'color:var(--terra)'],
+    ['Net mensuel estimé','= '+fmtE(fin.net),'font-weight:800;font-size:15px;color:var(--sage)'],
+  ].map(([l,v,s])=>`<tr><td>${l}</td><td style="text-align:right;${s}">${v}</td></tr>`).join('');
+
+  // Projection
+  const now2=new Date();const isCurMonth=now2.getFullYear()===y&&now2.getMonth()===m;
+  if(isCurMonth){
+    const dom=now2.getDate();const dim=new Date(y,m+1,0).getDate();
+    const proj=ca/(dom/dim);const projNet=calcNet(proj).net;
+    document.getElementById('m-proj').innerHTML=`<div style="font-size:13px;color:var(--mid);line-height:1.8;">
+      CA projeté fin de mois : <strong>${fmtE(r(proj))}</strong><br>
+      Net projeté : <strong style="color:${projNet>=S.settings.objectif?'var(--sage)':'var(--terra)'}">${fmtE(r(projNet))}</strong>
+    </div>`;
+  } else {
+    document.getElementById('m-proj').innerHTML=`<div style="color:var(--light);font-size:13px;">Disponible pour le mois en cours uniquement.</div>`;
+  }
+
+  const sorted=allS.sort((a,b)=>a.date.localeCompare(b.date));
+  document.getElementById('m-tbody').innerHTML=sorted.map(s=>`<tr style="${s.absent?'opacity:.6;':''}">
+    <td>${new Date(s.date).toLocaleDateString('fr-BE',{day:'2-digit',month:'2-digit'})}</td>
+    <td><strong>${s.prenom}</strong></td>
+    <td><span class="badge b-${s.code.toLowerCase()}">${s.code}</span></td>
+    <td>${s.dur} min</td>
+    <td>${s.absent?'—':fmtE(s.tarif)}</td>
+    <td>${s.absent?'<span class="badge b-ko">Absent</span>':'—'}</td>
+    <td><span class="badge ${s.source==='gcal'?'b-gcal':'b-manual'}">${s.source==='gcal'?'📅':'✏️'}</span></td>
+    <td><button class="btn btn-g btn-sm" onclick="openEdit('${s.id}')">✏️</button> <button class="btn btn-d btn-sm" onclick="delSeanceCheck('${s.id}','${s.source}')" title="Séances GCal : supprime dans Google Calendar puis resync">✕</button></td>
+  </tr>`).join('')||`<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--light);">Aucune séance ce mois</td></tr>`;
+}
+
+// ══════════════════════════════════════════════
+// SÉANCES (encodage manuel)
+// ══════════════════════════════════════════════
+function renderSeances(){
+  const m=S.curMonth,y=S.curYear;
+  document.getElementById('enc-mlbl').textContent=MOIS[m]+' '+y;
+  document.getElementById('enc-titre').textContent=MOIS[m]+' '+y;
+
+  document.getElementById('tarif-cards').innerHTML=TARIF_DEFS.map((tc,i)=>{
+    const prix=tc.code==='GROUPE'?S.settings.tarifGroupe:getTarif(tc.code,tc.dur);
+    if(prix===0) return'';
+    return`<div class="tc ${S.selTarif===i?'sel':''}" onclick="selTarif(${i})">
+      <div class="tc-code">${tc.code}</div>
+      <div class="tc-label">${tc.label}</div>
+      <div class="tc-price">${prix.toFixed(2)} €</div>
+      <div class="tc-dur">${tc.code==='GROUPE'?'Forfait':tc.dur+' min'}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('p-list').innerHTML=S.patients.map(p=>`<option value="${p.nom}">`).join('');
+
+  const sorted=seancesOfMonth(y,m).sort((a,b)=>a.date.localeCompare(b.date));
+  document.getElementById('enc-tbody').innerHTML=sorted.map(s=>`<tr style="${s.absent?'opacity:.6;':''}">
+    <td>${new Date(s.date).toLocaleDateString('fr-BE',{day:'2-digit',month:'2-digit'})}</td>
+    <td>${s.heure||'—'}</td>
+    <td><strong>${s.prenom}</strong></td>
+    <td><span class="badge b-${s.code.toLowerCase()}">${s.code}</span></td>
+    <td>${s.dur} min</td>
+    <td>${s.absent?'—':fmtE(s.tarif)}</td>
+    <td>${s.absent?'<span class="badge b-ko">Absent</span>':'—'}</td>
+    <td><span class="badge ${s.source==='gcal'?'b-gcal':'b-manual'}">${s.source==='gcal'?'📅 GCal':'✏️ Manuel'}</span></td>
+    <td style="color:var(--mid);font-size:11px;">${s.note||'—'}</td>
+    <td><button class="btn btn-g btn-sm" onclick="openEdit('${s.id}')">✏️</button> <button class="btn btn-d btn-sm" onclick="delSeanceCheck('${s.id}','${s.source}')" title="Séances GCal : supprime dans Google Calendar puis resync">✕</button></td>
+  </tr>`).join('')||`<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--light);">Aucune séance — synchronise GCal ou encode ci-dessus</td></tr>`;
+
+  const ca=calcCA(sorted);
+  document.getElementById('enc-totaux').innerHTML=
+    `<span style="color:var(--mid)">${sorted.filter(s=>!s.absent).length} séances · ${sorted.filter(s=>s.absent).length} absences</span><span style="color:var(--sage)">CA brut : ${fmtE(ca)}</span>`;
+}
+
+function selTarif(i){S.selTarif=i;renderSeances();}
+
+function addSeance(){
+  const prenom=document.getElementById('enc-prenom').value.trim();
+  const date=document.getElementById('enc-date').value;
+  if(!prenom){snack('⚠️ Entre le prénom');return;}
+  if(!date){snack('⚠️ Sélectionne une date');return;}
+  if(S.selTarif===null){snack('⚠️ Sélectionne un tarif');return;}
+  const tc=TARIF_DEFS[S.selTarif];
+  const libreT=parseFloat(document.getElementById('enc-tarif-libre').value);
+  const tarif=libreT>0?libreT:(tc.code==='GROUPE'?S.settings.tarifGroupe:getTarif(tc.code,tc.dur));
+  S.seances.push({
+    id:uid(),date,prenom,code:tc.code,dur:tc.dur,tarif,
+    source:'manuel',absent:document.getElementById('enc-absent').value==='1',
+    note:document.getElementById('enc-note').value,
+    heure:document.getElementById('enc-heure').value
+  });
+  document.getElementById('enc-prenom').value='';
+  document.getElementById('enc-note').value='';
+  document.getElementById('enc-tarif-libre').value='';
+  S.selTarif=null;
+  persist();renderSeances();
+  snack(`✅ ${prenom} · ${tc.code} ${tc.dur}min · ${tarif.toFixed(2)}€`);
+}
+
+function delSeanceCheck(id, source){
+  if(source==='gcal'){
+    if(!confirm('Cette séance vient de Google Calendar.\n\nPour la supprimer définitivement, supprime-la dans Google Calendar puis resynchronise.\n\nVeux-tu quand même la retirer de l\'app temporairement ?')) return;
+  }
+  delSeance(id);
+}
+
+function delSeance(id){S.seances=S.seances.filter(s=>s.id!==id);persist();renderSeances();renderSemaine();snack('🗑 Supprimée');}
+
+function openEdit(id){
+  const s=S.seances.find(x=>x.id===id);if(!s)return;
+  S.editId=id;
+  document.getElementById('e-prenom').value=s.prenom;
+  document.getElementById('e-code').value=s.code;
+  document.getElementById('e-dur').value=s.dur;
+  document.getElementById('e-date').value=s.date;
+  document.getElementById('e-heure').value=s.heure||'';
+  document.getElementById('e-absent').value=s.absent?'1':'0';
+  document.getElementById('e-tarif').value='';
+  document.getElementById('e-note').value=s.note||'';
+  document.getElementById('modal-edit').classList.add('open');
+}
+
+function saveEdit(){
+  const s=S.seances.find(x=>x.id===S.editId);if(!s)return;
+  s.prenom=document.getElementById('e-prenom').value.trim();
+  s.code=document.getElementById('e-code').value;
+  s.dur=parseInt(document.getElementById('e-dur').value);
+  s.date=document.getElementById('e-date').value;
+  s.heure=document.getElementById('e-heure').value;
+  s.absent=document.getElementById('e-absent').value==='1';
+  const mt=parseFloat(document.getElementById('e-tarif').value);
+  s.tarif=mt>0?mt:getTarif(s.code,s.dur);
+  s.note=document.getElementById('e-note').value;
+  s.source='manuel';
+  closeModal();persist();renderSeances();renderSemaine();snack('✅ Séance modifiée');
+}
+
+// ══════════════════════════════════════════════
+// PATIENTS
+// ══════════════════════════════════════════════
+function addPatient(){
+  const nom=document.getElementById('p-nom').value.trim();
+  if(!nom){snack('⚠️ Entre un prénom');return;}
+  if(S.patients.find(p=>p.nom.toLowerCase()===nom.toLowerCase())){snack('⚠️ Déjà présent');return;}
+  S.patients.push({nom,code:document.getElementById('p-code').value,dur:parseInt(document.getElementById('p-dur').value),freq:document.getElementById('p-freq').value});
+  document.getElementById('p-nom').value='';
+  persist();renderPatients();snack('✅ Patient ajouté — '+nom);
+}
+
+function delPatient(nom){S.patients=S.patients.filter(p=>p.nom!==nom);persist();renderPatients();}
+
+function renderPatients(){
+  document.getElementById('nb-p').textContent=S.patients.length;
+  const m=S.curMonth,y=S.curYear;
+  const mS=seancesOfMonth(y,m);
+  const statsByPat={};
+  mS.forEach(s=>{
+    if(!statsByPat[s.prenom]) statsByPat[s.prenom]={seances:0,absences:0,ca:0};
+    if(s.absent) statsByPat[s.prenom].absences++;
+    else{statsByPat[s.prenom].seances++;statsByPat[s.prenom].ca+=(s.tarif||0);}
+  });
+
+  document.getElementById('p-stats').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="kpi k-s" style="padding:12px;"><div class="klbl">Patients vus</div><div class="kval">${new Set(mS.map(s=>s.prenom)).size}</div></div>
+      <div class="kpi k-t" style="padding:12px;"><div class="klbl">Absences</div><div class="kval">${mS.filter(s=>s.absent).length}</div></div>
+    </div>`;
+
+  document.getElementById('p-tbody').innerHTML=S.patients.length===0
+    ?`<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--light);">Aucun patient — ajoute-les pour l'autocomplétion</td></tr>`
+    :S.patients.map(p=>{
+      const st=statsByPat[p.nom]||{seances:0,absences:0,ca:0};
+      const tot=st.seances+st.absences;
+      const tauxAbs=tot>0?r(st.absences/tot*100):0;
+      return`<tr>
+        <td><strong>${p.nom}</strong></td>
+        <td><span class="badge b-${p.code.toLowerCase()}">${p.code}</span></td>
+        <td>${p.dur} min</td>
+        <td>${getTarif(p.code,p.dur).toFixed(2)} €</td>
+        <td>${p.freq}</td>
+        <td>${st.seances}</td>
+        <td>${st.absences}</td>
+        <td><span class="badge b-${tauxAbs>=20?'ko':tauxAbs>=10?'warn':'ok'}">${tauxAbs}%</span></td>
+        <td>${st.ca>0?fmtE(st.ca):'—'}</td>
+        <td><button class="btn btn-d btn-sm" onclick="delPatient('${p.nom}')">✕</button></td>
+      </tr>`;
+    }).join('');
+}
+
+// ══════════════════════════════════════════════
+// FRAIS
+// ══════════════════════════════════════════════
+function addDepense(){
+  const mnt=parseFloat(document.getElementById('dep-mnt').value);
+  if(!mnt||mnt<=0){snack('⚠️ Montant invalide');return;}
+  S.depenses.push({
+    id:uid(),
+    date:document.getElementById('dep-date').value||new Date().toISOString().split('T')[0],
+    cat:document.getElementById('dep-cat').value,
+    desc:document.getElementById('dep-desc').value,
+    mnt, source:'manuel'
+  });
+  document.getElementById('dep-mnt').value='';
+  document.getElementById('dep-desc').value='';
+  persist();renderFrais();snack('✅ Dépense enregistrée');
+}
+
+function delDepense(id){S.depenses=S.depenses.filter(d=>d.id!==id);persist();renderFrais();}
+
+function importCSV(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const lines=e.target.result.split('\n');let imported=0;
+    lines.forEach(line=>{
+      const parts=line.split(';').map(p=>p.replace(/"/g,'').trim());
+      if(parts.length<3)return;
+      const mnt=Math.abs(parseFloat((parts[parts.length-1]||'').replace(',','.')));
+      if(!mnt||mnt<=0)return;
+      const desc=(parts[1]||parts[2]||'').toLowerCase();
+      let cat='autre';
+      if(desc.includes('loyer')||desc.includes('cabinet'))cat='loyer';
+      else if(desc.includes('compta'))cat='comptable';
+      else if(desc.includes('assur')||desc.includes('rc'))cat='rc';
+      else if(desc.includes('formation'))cat='formation';
+      else if(desc.includes('inasti'))cat='inasti';
+      S.depenses.push({id:uid(),date:parts[0]||new Date().toISOString().split('T')[0],cat,desc:parts[1]||'',mnt,source:'csv'});
+      imported++;
+    });
+    persist();renderFrais();snack(`✅ ${imported} transactions importées`);
+  };
+  reader.readAsText(file);
+}
+
+function renderFrais(){
+  const q4=[8,9,10,11];
+  const q4dep=S.depenses.filter(d=>q4.includes(new Date(d.date).getMonth()));
+  const byCat={};q4dep.forEach(d=>{byCat[d.cat]=(byCat[d.cat]||0)+d.mnt;});
+  const total=Object.values(byCat).reduce((a,b)=>a+b,0);
+
+  document.getElementById('frais-chart').innerHTML=Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([cat,val])=>`
+    <div class="brow"><div class="blbl">${CAT_LABELS[cat]||cat}</div><div class="btrack"><div class="bfill" style="width:${val/Math.max(total,1)*100}%;background:var(--terra)">${val>total*.1?fmtE(r(val)):''}</div></div><div class="bnum">${fmtE(r(val))}</div></div>`).join('');
+  document.getElementById('frais-total').innerHTML=`<span>Total Q4</span><span style="color:var(--terra)">${fmtE(r(total))}</span>`;
+
+  document.getElementById('dep-tbody').innerHTML=S.depenses.length===0
+    ?`<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--light);">Aucune dépense</td></tr>`
+    :S.depenses.sort((a,b)=>b.date.localeCompare(a.date)).map(d=>`<tr>
+      <td>${new Date(d.date).toLocaleDateString('fr-BE',{day:'2-digit',month:'2-digit',year:'2-digit'})}</td>
+      <td>${CAT_LABELS[d.cat]||d.cat}</td>
+      <td>${d.desc}</td>
+      <td><strong>${d.mnt.toFixed(2)} €</strong></td>
+      <td><span class="badge b-manual">${d.source==='csv'?'🏦 CBC':'✏️ Manuel'}</span></td>
+      <td><button class="btn btn-d btn-sm" onclick="delDepense('${d.id}')">✕</button></td>
+    </tr>`).join('');
+}
+
+// ══════════════════════════════════════════════
+// TRÉSORERIE
+// ══════════════════════════════════════════════
+function renderTresorerie(){
+  const y=S.curYear;
+  const caM=r([8,9,10,11].reduce((a,m)=>a+calcCA(seancesOfMonth(y,m)),0)/4)||0;
+  const f=fraisMois();
+  const rb=Math.max(0,caM-f);
+  const inastiM=r(rb*0.205);
+  const rniM=Math.max(0,rb-inastiM);
+  const ippM=rniM>0?r(Math.max(0,(rniM*0.40-2728/12)*1.085)):0;
+  const congesM=r(caM*S.settings.vacances/52);
+  const tampM=r(caM*0.05);
+  const totalProv=inastiM+ippM+congesM+tampM;
+  const dispo=Math.max(0,caM-f-totalProv);
+
+  document.getElementById('treso-kpis').innerHTML=`
+    <div class="kpi k-s"><div class="klbl">CA moyen/mois</div><div class="kval">${fmtE(caM)}</div><div class="ksub">Base Q4 2026</div></div>
+    <div class="kpi k-t"><div class="klbl">À provisionner/mois</div><div class="kval">${fmtE(totalProv)}</div><div class="ksub">INASTI + IPP + congés + tampon</div></div>
+    <div class="kpi k-ok"><div class="klbl">Disponible/mois</div><div class="kval">${fmtE(dispo)}</div><div class="ksub">Après frais + provisions</div></div>
+    <div class="kpi k-g"><div class="klbl">Provisions Q4 total</div><div class="kval">${fmtE(totalProv*4)}</div><div class="ksub">À avoir en réserve</div></div>
+  `;
+
+  const provs=[
+    {l:'INASTI (20,5%)',v:inastiM,c:'var(--terra)',desc:'Versement VA4 le 22/12'},
+    {l:'IPP provision',v:ippM,c:'var(--blue)',desc:'Pour déclaration 2027'},
+    {l:'Tampon vacances',v:congesM,c:'var(--sage)',desc:S.settings.vacances+' sem./an'},
+    {l:'Imprévus (5%)',v:tampM,c:'var(--gold)',desc:'Maladie, panne'},
+  ];
+
+  document.getElementById('prov-cards').innerHTML=provs.map(p=>`
+    <div class="prov-card" style="background:${p.c}18;border:1px solid ${p.c}44;">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:${p.c};margin-bottom:4px;">${p.l}</div>
+      <div style="font-size:20px;font-weight:800;">${fmtE(p.v)}<span style="font-size:12px;font-weight:400;color:var(--mid)">/mois</span></div>
+      <div style="font-size:11px;color:var(--mid);margin-top:2px;">${p.desc}</div>
+    </div>`).join('');
+  document.getElementById('prov-total').innerHTML=`<span>Total provisions/mois</span><span style="color:var(--terra)">${fmtE(totalProv)}</span>`;
+
+  document.getElementById('treso-chart').innerHTML=`<div class="barchart">`+[
+    {l:'Net disponible',v:dispo,c:'var(--sage)'},
+    {l:'Provisions',v:totalProv,c:'var(--gold)'},
+    {l:'Frais fixes',v:f,c:'var(--terra)'},
+  ].map(item=>`<div class="brow"><div class="blbl">${item.l}</div><div class="btrack"><div class="bfill" style="width:${caM>0?item.v/caM*100:0}%;background:${item.c}">${item.v>caM*.1?fmtE(r(item.v)):''}</div></div><div class="bnum">${fmtE(r(item.v))}</div></div>`).join('')+`</div>`;
+}
+
+// ══════════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════════
+function loadSettings(){
+  const s=S.settings;
+  ['obj','vac','abs','loyer','fixes','mat','form','spj','jours','demij'].forEach(k=>{
+    const el=document.getElementById('s-'+k);if(el) el.value=s[k]||0;
+  });
+  document.getElementById('s-tarif-groupe').value=s.tarifGroupe||60;
+  [['conv',30],['conv',45],['conv',60],['caps',30],['caps',45],['caps',60],['bilan',30],['bilan',45],['bilan',60]].forEach(([c,d])=>{
+    const el=document.getElementById(`t-${c}-${d}`);
+    if(el) el.value=(s.tarifs[c.toUpperCase()]||{})[d]||0;
+  });
+}
+
+function saveSettings(){
+  const g=id=>parseFloat(document.getElementById(id)?.value||0);
+  S.settings={
+    objectif:g('s-obj'),vacances:g('s-vac'),absent:g('s-abs'),
+    tarifGroupe:g('s-tarif-groupe'),
+    loyer:g('s-loyer'),fixes:g('s-fixes'),mat:g('s-mat'),form:g('s-form'),
+    spj:g('s-spj'),jours:g('s-jours'),demij:g('s-demij'),
+    tarifs:{
+      CONV:{30:g('t-conv-30'),45:g('t-conv-45'),60:g('t-conv-60')},
+      CAPS:{30:g('t-caps-30'),45:g('t-caps-45'),60:g('t-caps-60')},
+      BILAN:{30:g('t-bilan-30'),45:g('t-bilan-45'),60:g('t-bilan-60')},
+      GROUPE:{30:g('s-tarif-groupe'),45:g('s-tarif-groupe'),60:g('s-tarif-groupe')},
+    }
+  };
+  persist();renderDashboard();snack('✅ Paramètres sauvegardés');
+}
+
+// ══════════════════════════════════════════════
+// EXPORTS
+// ══════════════════════════════════════════════
+function exportCSV(){
+  let csv='\uFEFFDate;Patient;Code;Durée;Tarif;Absent;Source\n';
+  S.seances.sort((a,b)=>a.date.localeCompare(b.date)).forEach(s=>{
+    csv+=`${s.date};${s.prenom};${s.code};${s.dur}min;${s.absent?0:s.tarif.toFixed(2)};${s.absent?'Oui':'Non'};${s.source}\n`;
+  });
+  csv+='\nDate;Catégorie;Description;Montant\n';
+  S.depenses.forEach(d=>{csv+=`${d.date};${d.cat};${d.desc};${d.mnt.toFixed(2)}\n`;});
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`ari_finance_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();snack('📊 Export CSV téléchargé');
+}
+
+function exportJSON(){
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`ari_backup_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();snack('📤 Backup téléchargé');
+}
+
+function resetAll(){
+  if(!confirm('Réinitialiser toutes les données ?')) return;
+  localStorage.removeItem('ari_final');location.reload();
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+document.getElementById('enc-date').value=new Date().toISOString().split('T')[0];
+document.getElementById('dep-date').value=new Date().toISOString().split('T')[0];
+
+hydrate();
+initGoogle();
+updateGCalStatus(false); // Toujours déconnecté au démarrage — l'auth ne persiste pas
+renderDashboard();
+</script>
+</body>
+</html>
